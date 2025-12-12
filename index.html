@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Меню ресторана</title>
+    <style>
+        body {
+            font-family: "SF Pro Display", "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(to bottom, #fafafa, #efefef);
+            margin: 0;
+            padding: 40px;
+        }
+        h1, h2 {
+            color: #000;
+            font-weight: 700;
+            margin-left: 10px;
+            text-align: left;
+        }
+        section {
+            margin-bottom: 60px;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0 20px;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .sort-select {
+            padding: 7px 10px;
+            border-radius: 10px;
+            border: 1px solid #aaa;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .dishes {
+            display: flex;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 35px;
+            padding: 20px;
+            justify-content: center;
+        }
+        .dish {
+            background: white;
+            border-radius: 30px;
+            padding-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            overflow: hidden;
+            transition: all .25s;
+            cursor: pointer;
+            border: 3px solid transparent;
+        }
+        .dish:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+        }
+        .dish.selected {
+            border: 3px solid #007aff;
+            box-shadow: 0 15px 40px rgba(0, 122, 255, 0.3);
+            transform: translateY(-3px);
+        }
+        .dish img {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            border-radius: 25px 25px 0 0;
+        }
+        .dish .price {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 15px 20px 5px;
+        }
+        .dish .name {
+            font-size: 18px;
+            font-weight: 500;
+            margin: 0 20px;
+        }
+        .dish .count {
+            font-size: 14px;
+            color: #777;
+            margin: 10px 20px;
+        }
+        #order-form {
+            max-width: 700px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px 40px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+        #order h3 {
+            margin-bottom: 10px;
+        }
+        #order p {
+            font-size: 14px;
+            color: #555;
+        }
+        #order-total {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #000;
+        }
+        textarea, input[type="text"], input[type="email"], input[type="tel"], input[type="time"] {
+            background: #fafafa;
+            border-radius: 12px;
+            padding: 12px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+        input[type="submit"] {
+            background: #007aff;
+            color: white;
+            padding: 14px 25px;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 200px;
+            display: block;
+            margin: auto;
+            transition: background .2s;
+        }
+        input[type="submit"]:hover {
+            background: #0652DD;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 12px;
+        }
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Меню</h1>
+
+    <!-- ======= СУПЫ ======= -->
+    <section id="soups">
+        <div class="section-header">
+            <h2>Выберите суп</h2>
+            <select class="sort-select" onchange="sortCategory('soup', this.value)">
+                <option value="name">Сортировать: по названию</option>
+                <option value="price_asc">по цене ↑</option>
+                <option value="price_desc">по цене ↓</option>
+            </select>
+        </div>
+        <div class="dishes"></div>
+    </section>
+
+    <!-- ======= ГОРЯЧЕЕ ======= -->
+    <section id="hots">
+        <div class="section-header">
+            <h2>Выберите основное блюдо</h2>
+            <select class="sort-select" onchange="sortCategory('hot', this.value)">
+                <option value="name">по названию</option>
+                <option value="price_asc">по цене ↑</option>
+                <option value="price_desc">по цене ↓</option>
+            </select>
+        </div>
+        <div class="dishes"></div>
+    </section>
+
+    <!-- ======= НАПИТКИ ======= -->
+    <section id="drinks">
+        <div class="section-header">
+            <h2>Выберите напиток</h2>
+            <select class="sort-select" onchange="sortCategory('drink', this.value)">
+                <option value="name">по названию</option>
+                <option value="price_asc">по цене ↑</option>
+                <option value="price_desc">по цене ↓</option>
+            </select>
+        </div>
+        <div class="dishes"></div>
+    </section>
+
+    <!-- ======= ФОРМА ЗАКАЗА ======= -->
+    <form id="order-form">
+        <h2>Сделать заказ</h2>
+        <div id="order">
+            <h3>Ваш заказ</h3>
+            <p id="nothing-selected">Ничего не выбрано</p>
+            <div id="order-categories">
+                <div id="order-soup"></div>
+                <div id="order-hot"></div>
+                <div id="order-drink"></div>
+            </div>
+            <div id="order-total"></div>
+        </div>
+
+        <label for="comment">Комментарий к заказу</label>
+        <textarea id="comment" rows="4"></textarea>
+
+        <label for="name">Имя</label>
+        <input type="text" id="name">
+
+        <label for="email">Email</label>
+        <input type="email" id="email">
+
+        <label class="checkbox-label">
+            <input type="checkbox" checked> Получать информацию о скидках и акциях
+        </label>
+
+        <label for="phone">Номер телефона</label>
+        <input type="tel" id="phone">
+
+        <label for="address">Адрес доставки</label>
+        <input type="text" id="address">
+        <p>Доставка осуществляется только по Москве</p>
+
+        <label>Время доставки:</label>
+        <div class="radio-group">
+            <label><input type="radio" name="delivery-time" value="asap" checked> Как можно скорее</label>
+            <label><input type="radio" name="delivery-time" value="specific"> К указанному времени</label>
+            <input type="time" id="specific-time" style="display: none;">
+        </div>
+
+        <input type="submit" value="Отправить">
+    </form>
+
+    <script>
+        /* =============== ДАННЫЕ =============== */
+        const dishes = [
+            { keyword: 'gazpacho', name: 'Гаспачо', price: 195, category: 'soup', count: '300 г', image: 'https://www.allrecipes.com/thmb/d_1S6Av48F5LBfP-Z4W8VTD9U4I=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/222331-Chef-Johns-Gazpacho-ddmfs-4x3-2781-67624a59fa4c4375b9149d06f6c32348.jpg' },
+            { keyword: 'borscht', name: 'Борщ', price: 210, category: 'soup', count: '350 г', image: 'https://www.foodandwine.com/thmb/QJDtINY0W2okaAeIxyrBGa00gYQ=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Borscht-with-Buttermilk-and-Grated-Cucumber-FT-RECIPE0822-2000-15c400a9033a4e58bfbc4dfbb8ab0bd7.jpg' },
+            { keyword: 'tom_yam', name: 'Том Ям', price: 250, category: 'soup', count: '300 г', image: 'https://www.allrecipes.com/thmb/ySWu07JnCexqcS0BNkQiNK2hpYQ=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/ALR-278232-homemade-tom-yum-soup-VAT-4x3-2-c259a34e72ba4b479bc6941198736443.jpg' },
+            { keyword: 'pasta_carbonara', name: 'Паста Карбонара', price: 300, category: 'hot', count: '250 г', image: 'https://www.simplyrecipes.com/thmb/4rVYqq80fd-kHTx25yKtd8bvHzA=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Simply-Pasta-Carbonara-LEAD-4-3c433b3057e7465b8738b43de762df06.jpg' },
+            { keyword: 'steak', name: 'Стейк', price: 450, category: 'hot', count: '200 г', image: 'https://www.seriouseats.com/thmb/tnAvcNNOYdqpHcQBtuACl4r8dVA=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/__opt__aboutcom__coeus__resources__content_migration__serious_eats__seriouseats.com__images__2015__04__Anova-Steak-Guide-Sous-Vide-Photos15-beauty-736633d3c3374147b8e1a78194e95dda.jpg' },
+            { keyword: 'chicken_curry', name: 'Курица Карри', price: 280, category: 'hot', count: '300 г', image: 'https://www.allrecipes.com/thmb/FL-xnyAllLyHcKdkjUZkotVlHR8=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/46822-indian-chicken-curry-ii-DDMFS-4x3-39160aaa95674ee395b9d4609e3b0988.jpg' },
+            { keyword: 'orange_juice', name: 'Апельсиновый сок', price: 120, category: 'drink', count: '300 мл', image: 'https://www.justdoughit.com/wp-content/uploads/DSC_5591-scaled.jpg' },
+            { keyword: 'apple_juice', name: 'Яблочный сок', price: 90, category: 'drink', count: '300 мл', image: 'https://people.com/thmb/JhhcBFfAOmM2tJ4dKfe-VmsNRIc=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc():focal(749x0:751x2)/apple-juice-recall-tout-091124-abf6bb93d354486f9e84b56cddbc596d.jpg' },
+            { keyword: 'carrot_juice', name: 'Морковный сок', price: 110, category: 'drink', count: '300 мл', image: 'https://i0.wp.com/post.healthline.com/wp-content/uploads/2020/10/carrot-juice-1296x728-header.jpg?w=1155&h=1528' }
+        ];
+
+        /* =============== ОТОБРАЖЕНИЕ БЛЮД =============== */
+        const sections = {
+            'soup': document.querySelector('#soups .dishes'),
+            'hot': document.querySelector('#hots .dishes'),
+            'drink': document.querySelector('#drinks .dishes')
+        };
+
+        const selected = { soup: null, hot: null, drink: null };
+        const categoryNames = { soup: 'Суп', hot: 'Главное блюдо', drink: 'Напиток' };
+        const notSelectedTexts = { soup: 'Блюдо не выбрано', hot: 'Блюдо не выбрано', drink: 'Напиток не выбран' };
+
+        function renderCategory(cat) {
+            sections[cat].innerHTML = '';
+            let catDishes = dishes.filter(d => d.category === cat);
+            catDishes.forEach(dish => {
+                const div = document.createElement('div');
+                div.classList.add('dish');
+                div.dataset.keyword = dish.keyword;
+                div.dataset.category = cat;
+                div.innerHTML = `
+                    <img src="${dish.image}" alt="${dish.name}">
+                    <div class="price">${dish.price}₽</div>
+                    <div class="name">${dish.name}</div>
+                    <div class="count">${dish.count}</div>
+                `;
+                div.onclick = () => selectDish(cat, dish.keyword);
+                if (selected[cat] && selected[cat].keyword === dish.keyword) {
+                    div.classList.add('selected');
+                }
+                sections[cat].appendChild(div);
+            });
+        }
+
+        /* =============== СОРТИРОВКА =============== */
+        function sortCategory(cat, type) {
+    let catDishes = dishes.filter(d => d.category === cat);
+    if (type === 'name') {
+        catDishes.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (type === 'price_asc') {
+        catDishes.sort((a, b) => a.price - b.price);
+    } else if (type === 'price_desc') {
+        catDishes.sort((a, b) => b.price - a.price);
+    }
+
+    // Просто рендерим отсортированные блюда без изменения исходного массива
+    renderCategorySorted(cat, catDishes);
+}
+
+function renderCategorySorted(cat, catDishes) {
+    const container = sections[cat];
+    container.innerHTML = '';
+    catDishes.forEach(dish => {
+        const div = document.createElement('div');
+        div.classList.add('dish');
+        div.dataset.keyword = dish.keyword;
+        div.dataset.category = cat;
+        div.innerHTML = `
+            <img src="${dish.image}" alt="${dish.name}">
+            <div class="price">${dish.price}₽</div>
+            <div class="name">${dish.name}</div>
+            <div class="count">${dish.count}</div>
+        `;
+        div.onclick = () => selectDish(cat, dish.keyword);
+        if (selected[cat] && selected[cat].keyword === dish.keyword) {
+            div.classList.add('selected');
+        }
+        container.appendChild(div);
+    });
+}
+
+
+        /* =============== ВЫБОР БЛЮДА =============== */
+        function selectDish(cat, keyword) {
+            const dish = dishes.find(d => d.keyword === keyword);
+            if (dish) {
+                selected[cat] = dish;
+                // Remove selected class from others in the same category
+                document.querySelectorAll(`#${cat}s .dish`).forEach(el => el.classList.remove('selected'));
+                // Add to this
+                const selectedEl = document.querySelector(`#${cat}s .dish[data-keyword="${keyword}"]`);
+                if (selectedEl) selectedEl.classList.add('selected');
+                renderOrder();
+            }
+        }
+
+        /* =============== ОТОБРАЖЕНИЕ ЗАКАЗА =============== */
+        function renderOrder() {
+            let totalPrice = 0;
+            let hasSelection = false;
+
+            Object.keys(selected).forEach(cat => {
+                const orderDiv = document.getElementById(`order-${cat}`);
+                if (selected[cat]) {
+                    orderDiv.textContent = `${categoryNames[cat]}: ${selected[cat].name} - ${selected[cat].price}₽`;
+                    totalPrice += selected[cat].price;
+                    hasSelection = true;
+                } else {
+                    orderDiv.textContent = `${categoryNames[cat]}: ${notSelectedTexts[cat]}`;
+                }
+            });
+
+            if (hasSelection) {
+                document.getElementById('nothing-selected').style.display = 'none';
+                document.getElementById('order-categories').style.display = 'block';
+                document.getElementById('order-total').style.display = 'block';
+                document.getElementById('order-total').textContent = `Стоимость заказа: ${totalPrice}₽`;
+            } else {
+                document.getElementById('nothing-selected').style.display = 'block';
+                document.getElementById('order-categories').style.display = 'none';
+                document.getElementById('order-total').style.display = 'none';
+            }
+        }
+
+        // Инициализация
+        renderCategory('soup');
+        renderCategory('hot');
+        renderCategory('drink');
+        renderOrder();
+
+        /* =============== ЛОГИКА ВРЕМЕНИ ДОСТАВКИ =============== */
+        document.querySelectorAll('input[name="delivery-time"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                document.getElementById('specific-time').style.display = radio.value === 'specific' ? 'block' : 'none';
+            });
+        });
+
+        /* =============== МАСКА ТЕЛЕФОНА =============== */
+        const phoneInput = document.getElementById("phone");
+        phoneInput.addEventListener("input", function () {
+            let value = this.value.replace(/\D/g, "");
+            if (value.startsWith("8")) value = "7" + value.slice(1);
+            let formatted = "+7";
+            if (value.length > 1) formatted += " (" + value.substring(1, 4);
+            if (value.length >= 5) formatted += ") " + value.substring(4, 7);
+            if (value.length >= 8) formatted += "-" + value.substring(7, 9);
+            if (value.length >= 10) formatted += "-" + value.substring(9, 11);
+            this.value = formatted;
+        });
+    </script>
+</body>
+</html>
